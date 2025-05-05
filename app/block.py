@@ -4,7 +4,9 @@ from abc import ABC, abstractmethod
 
 
 class BlockingManager:
-    def __init__(self, hosts_path, redirect="127.0.0.1", state_file="blocking_state.json"):
+    def __init__(
+        self, hosts_path, redirect="127.0.0.1", state_file="blocking_state.json"
+    ):
         self.hosts_path = hosts_path
         self.redirect = redirect
         self.state_file = state_file
@@ -16,48 +18,49 @@ class BlockingManager:
 
     def _load_state(self):
         try:
-            with open(self.hosts_path, 'r') as file:
+            with open(self.hosts_path, "r") as file:
                 lines = file.readlines()
                 for line in lines:
-                    pass
+                    if line.endswith("blanc-all"):
+                        pass
         except FileNotFoundError:
-            print(f"Hosts file is missing.")
+            print("Hosts file is missing.")
 
-    def _load_state(self):
+    def _load_state1(self):
         try:
-            with open(self.state_file, 'r') as file:
+            with open(self.state_file, "r") as file:
                 state = json.load(file)
-                self.indefinitely_blocked = set(state.get('indefinitely_blocked', []))
-                self.temporarily_blocked = state.get('temporarily_blocked', {})
+                self.indefinitely_blocked = set(state.get("indefinitely_blocked", []))
+                self.temporarily_blocked = state.get("temporarily_blocked", {})
         except FileNotFoundError:
-            data = {
-                "indefinitely_blocked": [],
-                "temporary_blocked": {}
-                    }
-            with open(self.state_file, 'w') as file:
+            data = {"indefinitely_blocked": [], "temporary_blocked": {}}
+            with open(self.state_file, "w") as file:
                 json.dump(data, file)
         except json.JSONDecodeError:
             print("Error decoding blocking state file.")
 
     def _save_state(self):
         state = {
-            'indefinitely_blocked': list(self.indefinitely_blocked),
-            'temporarily_blocked': self.temporarily_blocked
+            "indefinitely_blocked": list(self.indefinitely_blocked),
+            "temporarily_blocked": self.temporarily_blocked,
         }
         try:
-            with open(self.state_file, 'w') as file:
+            with open(self.state_file, "w") as file:
                 json.dump(state, file)
         except IOError:
             print("Error saving blocking state.")
 
     def _update_hosts_file(self):
         try:
-            with open(self.hosts_path, 'r+') as file:
+            with open(self.hosts_path, "r+") as file:
                 lines = file.readlines()
                 file.seek(0)
                 file.truncate()
                 for line in lines:
-                    if not (line.startswith(self.redirect) and any(site in line for site in self.get_blocked_sites())):
+                    if not (
+                        line.startswith(self.redirect)
+                        and any(site in line for site in self.get_blocked_sites())
+                    ):
                         file.write(line)
                 for site in self.get_blocked_sites():
                     if not any(f"{self.redirect} {site}" in line for line in lines):
@@ -66,7 +69,11 @@ class BlockingManager:
             print(f"Error accessing the hosts file: {e}")
 
     def _check_expired_blocks(self):
-        expired_sites = [site for site, expiry in self.temporarily_blocked.items() if time.time() >= expiry]
+        expired_sites = [
+            site
+            for site, expiry in self.temporarily_blocked.items()
+            if time.time() >= expiry
+        ]
         for site in expired_sites:
             del self.temporarily_blocked[site]
         self._update_hosts_file()
@@ -105,10 +112,12 @@ class BlockingManager:
     #     thread = threading.Thread(target=self._expiry_checker_loop, daemon=True)
     #     thread.start()
 
+
 class Command(ABC):
     @abstractmethod
     def execute(self):
         pass
+
 
 # class BlockSiteCommand(Command):
 #     def __init__(self, site, blocking_manager, duration_minutes=None):
@@ -119,7 +128,10 @@ class Command(ABC):
 #     def execute(self):
 #         if self.duration_minutes is not None:
 #             self.blocking_manager.block_temporarily(self.site, self.duration_minutes)
-#             print(f"Access to {self.site} has been blocked for {self.duration_minutes} minutes.")
+#             print(
+#                 f"Access to {self.site} has been blocked
+#                 for {self.duration_minutes} minutes."
+#             )
 #         else:
 #             self.blocking_manager.block_indefinitely(self.site)
 #             print(f"Access to {self.site} has been blocked indefinitely.")
@@ -181,6 +193,7 @@ class Command(ABC):
 #         else:
 #             print("No sites specified to unblock.")
 
+
 class ListBlockedSitesCommand(Command):
     def __init__(self, blocking_manager):
         self.blocking_manager = blocking_manager
@@ -193,7 +206,9 @@ class ListBlockedSitesCommand(Command):
                 if site in self.blocking_manager.temporarily_blocked:
                     expiry_time = self.blocking_manager.temporarily_blocked[site]
                     remaining_time = int(expiry_time - time.time())
-                    print(f"- {site} (Temporary, unblocks in {remaining_time // 60} minutes {remaining_time % 60} seconds)")
+                    print(
+                        f"- {site} (Temporary, unblocks in {remaining_time // 60} minutes {remaining_time % 60} seconds)"
+                    )
                 else:
                     print(f"- {site} (Indefinite)")
         else:

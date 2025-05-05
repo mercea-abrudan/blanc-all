@@ -1,27 +1,35 @@
-import json
+# import json
 import os
 import pytest
 import time
-from unittest import mock
+
+# from unittest import mock
 from app.block import BlockingManager
-from tests.utils import read_mock_hosts
-from tests.utils import read_mock_state
+
+# from tests.utils import read_mock_hosts
+# from tests.utils import read_mock_state
+
 
 @pytest.fixture
 def mock_hosts_path(tmp_path):
     """Fixture to provide a temporary hosts file path."""
     return str(tmp_path / "hosts")
 
+
 @pytest.fixture
 def blocking_manager(mock_hosts_path):
     """Fixture to create a BlockingManager instance with a mock hosts path."""
-    return BlockingManager(mock_hosts_path, state_file=str(mock_hosts_path) + ".state.json")
+    return BlockingManager(
+        mock_hosts_path, state_file=str(mock_hosts_path) + ".state.json"
+    )
+
 
 def test_initialization(blocking_manager):
     assert os.path.isfile(blocking_manager.state_file)
     assert blocking_manager.redirect == "127.0.0.1"
     assert blocking_manager.indefinitely_blocked == set()
     assert blocking_manager.temporarily_blocked == {}
+
 
 def test_get_blocked_sites(blocking_manager):
     blocking_manager.indefinitely_blocked.add("indefinite.com")
@@ -30,8 +38,13 @@ def test_get_blocked_sites(blocking_manager):
     assert "indefinite.com" in blocked
     assert "temporary.com" in blocked
 
+
 # def test_block_indefinitely(blocking_manager, mock_hosts_path, mocker):
-#     mock_open = mocker.patch('builtins.open', new_callable=mock.mock_open, read_data="")
+# mock_open = mocker.patch(
+#     'builtins.open',
+#     new_callable=mock.mock_open,
+#     read_data=""
+# )
 #     blocking_manager.block_indefinitely("example.com")
 #     mock_open.assert_any_call(mock_hosts_path, 'r+')
 #     mock_open().write.assert_any_call("127.0.0.1 example.com\n")
@@ -40,7 +53,11 @@ def test_get_blocked_sites(blocking_manager):
 #     assert "example.com" in state.get('indefinitely_blocked', [])
 
 # def test_block_temporarily(blocking_manager, mock_hosts_path, mocker):
-#     mock_open = mocker.patch('builtins.open', new_callable=mock.mock_open, read_data="")
+# mock_open = mocker.patch(
+#     'builtins.open',
+#     new_callable=mock.mock_open,
+#     read_data=""
+# )
 #     blocking_manager.block_temporarily("temporary.com", 10)
 #     mock_open.assert_any_call(mock_hosts_path, 'r+')
 #     mock_open().write.assert_any_call(mock.ANY)  # We just check that write was called
@@ -49,7 +66,11 @@ def test_get_blocked_sites(blocking_manager):
 #     assert "temporary.com" in state.get('temporarily_blocked', {})
 
 # def test_unblock(blocking_manager, mock_hosts_path, mocker):
-#     mock_open = mocker.patch('builtins.open', new_callable=mock.mock_open, read_data="127.0.0.1 example.com\n127.0.0.1 temporary.com\n")
+# mock_open = mocker.patch(
+#     'builtins.open',
+#     new_callable=mock.mock_open,
+#     read_data="127.0.0.1 example.com\n127.0.0.1 temporary.com\n"
+# )
 #     blocking_manager.indefinitely_blocked.add("example.com")
 #     blocking_manager.temporarily_blocked["temporary.com"] = time.time() + 60
 #     blocking_manager.unblock("example.com")
@@ -64,7 +85,11 @@ def test_get_blocked_sites(blocking_manager):
 #     assert "example.com" not in state.get('temporarily_blocked', {})
 
 # def test_check_expired_blocks(blocking_manager, mock_hosts_path, mocker):
-#     mock_open = mocker.patch('builtins.open', new_callable=mock.mock_open, read_data="127.0.0.1 expired.com\n127.0.0.1 still_active.com\n")
+# mock_open = mocker.patch(
+#     'builtins.open',
+#     new_callable=mock.mock_open,
+#     read_data="127.0.0.1 expired.com\n127.0.0.1 still_active.com\n"
+# )
 #     blocking_manager.temporarily_blocked["expired.com"] = time.time() - 1
 #     blocking_manager.temporarily_blocked["still_active.com"] = time.time() + 60
 #     blocking_manager._check_expired_blocks()
@@ -82,7 +107,10 @@ def test_get_blocked_sites(blocking_manager):
 #         'indefinitely_blocked': ['persisted.com'],
 #         'temporarily_blocked': {'later.com': time.time() + 120}
 #     }
-#     mock_file = mocker.patch('builtins.open', mock.mock_open(read_data=json.dumps(initial_state)))
+# mock_file = mocker.patch(
+#     'builtins.open',
+#     mock.mock_open(read_data=json.dumps(initial_state))
+#     )
 #     new_manager = BlockingManager(mock_hosts_path)
 #     assert new_manager.indefinitely_blocked == {'persisted.com'}
 #     assert 'later.com' in new_manager.temporarily_blocked
@@ -94,7 +122,11 @@ def test_get_blocked_sites(blocking_manager):
 #     assert 'later.com' in state.get('temporarily_blocked', {})
 
 # def test_update_hosts_file(blocking_manager, mock_hosts_path, mocker):
-#     mock_open = mocker.patch('builtins.open', new_callable=mock.mock_open, read_data="some existing line\n127.0.0.1 old_blocked.com\n")
+# mock_open = mocker.patch(
+#     'builtins.open',
+#     new_callable=mock.mock_open,
+#     read_data="some existing line\n127.0.0.1 old_blocked.com\n"
+#     )
 #     blocking_manager.indefinitely_blocked.add("new_blocked.com")
 #     blocking_manager.temporarily_blocked["temp_blocked.net"] = time.time() + 60
 #     blocking_manager._update_hosts_file()

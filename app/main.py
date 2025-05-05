@@ -1,17 +1,34 @@
 import argparse
-import sys
+# import sys
 
 from utils import copy_file, get_hosts_path
-from block import BlockingManager
-from block import ListBlockedSitesCommand
+# from block import BlockingManager
+# from block import ListBlockedSitesCommand
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Block, unblock, list, or restore websites via the hosts file.")
-    parser.add_argument("action", choices=['block', 'restore', 'unblock', 'list'], help="Action to perform.")
-    parser.add_argument("target", nargs='?', help="The website to block/unblock (e.g., facebook.com) or '-all'.")
-    parser.add_argument("-m", "--minutes", type=int, help="Duration in minutes for temporary blocking.")
-    parser.add_argument("-s", "--sites", nargs='+', help="List of sites to block/unblock (used with -all).")
+    parser = argparse.ArgumentParser(
+        description="Block, unblock, list, or restore websites via the hosts file."
+    )
+    parser.add_argument(
+        "action",
+        choices=["block", "restore", "unblock", "list"],
+        help="Action to perform.",
+    )
+    parser.add_argument(
+        "target",
+        nargs="?",
+        help="The website to block/unblock (e.g., facebook.com) or '-all'.",
+    )
+    parser.add_argument(
+        "-m", "--minutes", type=int, help="Duration in minutes for temporary blocking."
+    )
+    parser.add_argument(
+        "-s",
+        "--sites",
+        nargs="+",
+        help="List of sites to block/unblock (used with -all).",
+    )
 
     args = parser.parse_args()
     hosts_file = get_hosts_path()
@@ -27,7 +44,7 @@ if __name__ == "__main__":
 
     # command = None
 
-    if args.action == '':
+    if args.action == "":
         pass
 
     # if args.action == 'block':
