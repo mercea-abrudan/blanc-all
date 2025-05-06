@@ -1,36 +1,33 @@
-import json
 import time
 from abc import ABC, abstractmethod
 from app.utils import extract_blocked_site
 
 
 class BlockingManager:
-    def __init__(
-        self, hosts_path, redirect="127.0.0.1", state_file="blocking_state.json"
-    ):
+    def __init__(self, hosts_path, redirect="127.0.0.1"):
         self.hosts_path = hosts_path
         self.redirect = redirect
-        self.state_file = state_file
-        self.indefinitely_blocked = set()
-        self.temporarily_blocked = {}  # {site: unblock_timestamp}
-        self._load_state()
+        self.blocked = {}  # {site: unblock_timestamp}
+        self._load_cache()
         # Start a background thread for checking expiry (optional)
         # self._start_expiry_checker()
 
-    def _load_state(self):
+    def _load_cache(self):
         try:
             with open(self.hosts_path, "r") as file:
                 lines = file.readlines()
                 for line in lines:
-                    if line.endswith("blanc-all"):
+                    if line.endswith("blanc-all\n"):
                             blocked_site = extract_blocked_site(line)
                             if blocked_site:
                                 if "until" in line:
-                                    self.temporarily_blocked[blocked_site] = "time"
+                                    self.blocked[blocked_site] = "time"
                                 else:
-                                    self.indefinitely_blocked.add(blocked_site)
+                                    self.blocked[blocked_site] = 0
         except FileNotFoundError:
             print("Hosts file is missing.")
+        except IOError as e:
+            print(f"Error accessing the hosts file: {e}")
 
 
     def _save_state(self):
@@ -43,11 +40,40 @@ class BlockingManager:
                     file.write(f"{self.redirect} {blocked_site}  {comment} until time")
         except FileNotFoundError:
             print("Hosts file is missing.")
+        except IOError as e:
+            print(f"Error accessing the hosts file: {e}")
 
 
-    def _update_hosts_file(self):
+    def _add_to_hosts(self, site):
+        comment = "# blocked by blanc-all"
+        try:
+            with open(self.hosts_path, "a") as file:
+                file.write(f"{self.redirect} {site}  {comment}")
+        except FileNotFoundError:
+            print("Hosts file is missing.")
+        except IOError as e:
+            print(f"Error accessing the hosts file: {e}")
+
+
+    def _remove_from_hosts(self, site):
         try:
             with open(self.hosts_path, "r+") as file:
+                lines = file.readlines()
+                file.seek(0)
+                file.truncate()
+                for line in lines:
+                    if not site in line.split():
+                        file.write(line)
+        except FileNotFoundError:
+            print("Hosts file is missing.")
+        except IOError as e:
+            print(f"Error accessing the hosts file: {e}")
+
+
+    def _update_hosts_file(self, site):
+        try:
+            with open(self.hosts_path, "a") as file:
+                # file.write(f"{self.redirect} {site}  {comment}")
                 lines = file.readlines()
                 file.seek(0)
                 file.truncate()
@@ -63,6 +89,7 @@ class BlockingManager:
         except IOError as e:
             print(f"Error accessing the hosts file: {e}")
 
+
     def _check_expired_blocks(self):
         expired_sites = [
             site
@@ -75,27 +102,21 @@ class BlockingManager:
         self._save_state()
 
     def get_blocked_sites(self):
-        # self._check_expired_blocks()
-        return list(self.indefinitely_blocked) + list(self.temporarily_blocked.keys())
+        return list(self.blocked.keys())
 
-    def block_indefinitely(self, site):
-        self.indefinitely_blocked.add(site)
-        self._update_hosts_file()
-        self._save_state()
+    def block(self, site: str, duration: int = 0):
+        if site in self.blocked:
+            print("Site is already blocked.")
+        else:
+            self._add_to_hosts(site)
+            self.blocked[site] = duration
 
-    # def block_temporarily(self, site, duration_minutes):
-    #     expiry_time = time.time() + duration_minutes * 60
-    #     self.temporarily_blocked[site] = expiry_time
-    #     self._update_hosts_file()
-    #     self._save_state()
-
-    # def unblock(self, site):
-    #     if site in self.indefinitely_blocked:
-    #         self.indefinitely_blocked.remove(site)
-    #     if site in self.temporarily_blocked:
-    #         del self.temporarily_blocked[site]
-    #     self._update_hosts_file()
-    #     self._save_state()
+    def unblock(self, site):
+        if site in self.blocked:
+            self._remove_from_hosts(site)
+            del self.blocked[site]
+        else:
+            print("Site is not blocked.")
 
     # Optional background thread approach:
     # def _expiry_checker_loop(self):
