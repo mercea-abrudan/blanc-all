@@ -40,19 +40,18 @@ def copy_file(source: str | os.PathLike, destination: str | os.PathLike):
             print(f"An unexpected error occurred: {e}")
 
 
-def extract_blocked_site(hosts_line: str, redirect_ip: str = "127.0.0.1"):
+def extract_blocked_site(hosts_line: str):
     """
     Extracts the blocked website from a line in the hosts file.
 
     Args:
         hosts_line (str): A single line from the hosts file.
-        redirect_ip (str): The IP address used for redirection (default: "127.0.0.1").
 
     Returns:
         str or None: The extracted blocked website if found, otherwise None.
     """
     hosts_line = hosts_line.strip()
-    if hosts_line.startswith(redirect_ip):
+    if not hosts_line.startswith("#"):
         parts = hosts_line.split()
         if len(parts) >= 2:
             blocked_site = parts[1]
