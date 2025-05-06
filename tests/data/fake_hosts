@@ -1,0 +1,14 @@
+# This is a sample hosts file.
+
+127.0.0.1 example1.com  # blocked by blanc-all
+127.0.0.1 www.example1.com  # blocked by blanc-all
+127.0.0.1 www.example1.com/channel-name1  # blocked by blanc-all
+127.0.0.1 www.example1.com/channel-name2  # blocked by blanc-all
+127.0.0.2 example2.com  # blocked by blanc-all
+127.0.0.2 www.example2.com  # blocked by blanc-all
+127.0.0.2 www.example2.com/page1  # blocked by blanc-all
+127.0.0.2 www.example2.com/page2  # blocked by blanc-all
+127.0.0.1 example3.com
+127.0.0.1 www.example3.com
+127.0.0.1 www.example3.com/page_name1
+127.0.0.1 www.example3.com/page_name2
