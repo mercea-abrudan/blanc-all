@@ -1,6 +1,7 @@
 import json
 import time
 from abc import ABC, abstractmethod
+from app.utils import extract_blocked_site
 
 
 class BlockingManager:
@@ -22,33 +23,27 @@ class BlockingManager:
                 lines = file.readlines()
                 for line in lines:
                     if line.endswith("blanc-all"):
-                        pass
+                            blocked_site = extract_blocked_site(line)
+                            if blocked_site:
+                                if "until" in line:
+                                    self.temporarily_blocked[blocked_site] = "time"
+                                else:
+                                    self.indefinitely_blocked.add(blocked_site)
         except FileNotFoundError:
             print("Hosts file is missing.")
 
-    def _load_state1(self):
-        try:
-            with open(self.state_file, "r") as file:
-                state = json.load(file)
-                self.indefinitely_blocked = set(state.get("indefinitely_blocked", []))
-                self.temporarily_blocked = state.get("temporarily_blocked", {})
-        except FileNotFoundError:
-            data = {"indefinitely_blocked": [], "temporary_blocked": {}}
-            with open(self.state_file, "w") as file:
-                json.dump(data, file)
-        except json.JSONDecodeError:
-            print("Error decoding blocking state file.")
 
     def _save_state(self):
-        state = {
-            "indefinitely_blocked": list(self.indefinitely_blocked),
-            "temporarily_blocked": self.temporarily_blocked,
-        }
+        comment = "# blocked by blanc-all"
         try:
-            with open(self.state_file, "w") as file:
-                json.dump(state, file)
-        except IOError:
-            print("Error saving blocking state.")
+            with open(self.hosts_path, "a") as file:
+                for blocked_site in self.indefinitely_blocked:
+                    file.write(f"{self.redirect} {blocked_site}  {comment}")
+                for blocked_site in self.temporarily_blocked.keys():
+                    file.write(f"{self.redirect} {blocked_site}  {comment} until time")
+        except FileNotFoundError:
+            print("Hosts file is missing.")
+
 
     def _update_hosts_file(self):
         try:
