@@ -95,37 +95,40 @@ def is_valid_site(url_or_domain: str):
             # Has a scheme (http/https) and a network location (domain)
             if '.' in parsed_url.netloc:
                 return True
-        elif not parsed_url.scheme and parsed_url.netloc:
-            # No scheme, but has a network location (likely a domain)
-            if '.' in parsed_url.netloc:
-                return True
-        elif not parsed_url.scheme and not parsed_url.netloc and parsed_url.path:
-            # Could be just a domain without scheme (e.g., example.com)
-            if '.' in parsed_url.path:
-                return True
-        return False
-
     except Exception:
         # Parsing as URL failed, try basic domain checks
-        if '.' in url_or_domain:
-            parts = url_or_domain.split('.')
-            if len(parts) >= 2:
-                # Check TLD length (at least 2 characters)
-                if len(parts[-1]) >= 2:
-                    # Check each part for invalid characters and length
-                    for part in parts:
-                        # Empty before or after '.'
-                        if not part:
-                            return False
-                        # Maximum length of a domain label
-                        if len(part) > 63:
-                            return False
-                        # Characters are alphanumeric or '-'
-                        if not all(c.isalnum() or c == '-' for c in part):
-                            return False
-                        # Does not start or end with '-'
-                        if part.startswith('-') or part.endswith('-'):
-                            return False
-                    return True
+        return False
+    
+    # Basic IPv4 address check
+    parts = url_or_domain.split('.')
+    if len(parts) == 4:
+        is_ipv4 = True
+        for part in parts:
+            if not part.isdigit() or not 0 <= int(part) <= 255:
+                is_ipv4 = False
+                break
+        if is_ipv4:
+            return True
+
+    if '.' in url_or_domain:
+        parts = url_or_domain.split('.')
+        if len(parts) >= 2:
+            # Check TLD length (at least 2 characters)
+            if len(parts[-1]) >= 2:
+                # Check each part for invalid characters and length
+                for part in parts:
+                    # Empty before or after '.'
+                    if not part:
+                        return False
+                    # Maximum length of a domain label
+                    if len(part) > 63:
+                        return False
+                    # Characters are alphanumeric or '-'
+                    if not all(c.isalnum() or c == '-' for c in part):
+                        return False
+                    # Does not start or end with '-'
+                    if part.startswith('-') or part.endswith('-'):
+                        return False
+                return True
 
     return False
