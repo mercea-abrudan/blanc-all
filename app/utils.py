@@ -2,6 +2,7 @@ import os
 import platform
 import shutil
 import sys
+from urllib.parse import urlparse
 
 
 def get_hosts_path():
@@ -59,3 +60,72 @@ def extract_blocked_site(hosts_line: str):
             if "." in blocked_site:
                 return blocked_site
     return None
+
+
+def is_valid_site(url_or_domain: str):
+    """
+    Checks if a given string is likely a valid website URL or domain.
+
+    This function uses a combination of checks to determine validity.
+
+    Args:
+        url_or_domain (str): The string to check.
+
+    Returns:
+        bool: True if the string is likely a valid site, False otherwise.
+    """
+    if not url_or_domain or not isinstance(url_or_domain, str):
+        return False
+
+    # Basic length check
+    if len(url_or_domain) > 255:  # Maximum length of a hostname
+        return False
+
+    # Check for common invalid characters
+    invalid_chars = [
+        ' ', '\t', '\n', '\r', '<', '>', '[', ']', '{', '}', '|', '\\', '^', '`'
+    ]
+    if any(char in url_or_domain for char in invalid_chars):
+        return False
+
+    # Try parsing as a URL
+    try:
+        parsed_url = urlparse(url_or_domain)
+        if parsed_url.scheme and parsed_url.netloc:
+            # Has a scheme (http/https) and a network location (domain)
+            if '.' in parsed_url.netloc:
+                return True
+        elif not parsed_url.scheme and parsed_url.netloc:
+            # No scheme, but has a network location (likely a domain)
+            if '.' in parsed_url.netloc:
+                return True
+        elif not parsed_url.scheme and not parsed_url.netloc and parsed_url.path:
+            # Could be just a domain without scheme (e.g., example.com)
+            if '.' in parsed_url.path:
+                return True
+        return False
+
+    except Exception:
+        # Parsing as URL failed, try basic domain checks
+        if '.' in url_or_domain:
+            parts = url_or_domain.split('.')
+            if len(parts) >= 2:
+                # Check TLD length (at least 2 characters)
+                if len(parts[-1]) >= 2:
+                    # Check each part for invalid characters and length
+                    for part in parts:
+                        # Empty before or after '.'
+                        if not part:
+                            return False
+                        # Maximum length of a domain label
+                        if len(part) > 63:
+                            return False
+                        # Characters are alphanumeric or '-'
+                        if not all(c.isalnum() or c == '-' for c in part):
+                            return False
+                        # Does not start or end with '-'
+                        if part.startswith('-') or part.endswith('-'):
+                            return False
+                    return True
+
+    return False
