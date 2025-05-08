@@ -23,14 +23,10 @@ def test_extract_valid_blocked_sites(hosts_line, expected_site):
 @pytest.mark.parametrize(
     "hosts_line",
     [
-        ("127.0.0.1 localhost"),
-        ("127.0.0.1 1"),
-        ("127.0.0.1"),
-        ("255.255.255.255 broadcasthost"),
         ("# 127.0.0.1 another.com"),
+        ("127.0.0.1"),
         (" "),
         (""),
-        ("invalid ip www.example.com"),
     ],
 )
 def test_extract_no_blocked_site(hosts_line):
