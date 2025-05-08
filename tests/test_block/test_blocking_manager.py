@@ -5,7 +5,7 @@ from app.utils import copy_file
 
 
 FAKE_HOSTS_PATH = "tests/data/fake_hosts"
-NR_OF_BLOCKED_SITES = 8
+NR_OF_BLOCKED_SITES = 12
 
 
 @pytest.fixture
