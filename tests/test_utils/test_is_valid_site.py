@@ -24,7 +24,10 @@ def test_with_valid_sites(site, valid):
     [
         ("local", False),
         ("invalid char ", False),
-        ("toolongdomainnameaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.com", False),
+        (
+            "toolongdomainnameaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa.com",
+            False,
+        ),
         (".invalid", False),
         ("invalid.", False),
         ("-invalid.com", False),

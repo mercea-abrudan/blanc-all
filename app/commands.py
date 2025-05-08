@@ -20,6 +20,7 @@ class BlockSiteCommand(Command):
         else:
             print("Please specify a valid website to block.")
 
+
 class UnblockSiteCommand(Command):
     def __init__(self, blocking_manager, site):
         self.site = site
@@ -28,6 +29,7 @@ class UnblockSiteCommand(Command):
     def execute(self):
         self.blocking_manager.unblock(self.site)
         print(f"Access to {self.site} has been unblocked.")
+
 
 # class RestoreHostsCommand(Command):
 #     def __init__(self, hosts_path, original_content):

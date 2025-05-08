@@ -13,7 +13,7 @@ from app.utils import extract_blocked_site
         ("127.0.0.1 www.facebook.com/page_name", "www.facebook.com/page_name"),
         ("127.0.0.1 sub.domain.example.co.uk", "sub.domain.example.co.uk"),
         ("127.0.0.1 123.456.789.012", "123.456.789.012"),  # Might be a local IP block
-        ("127.0.0.2 www.example.com", "www.example.com")
+        ("127.0.0.2 www.example.com", "www.example.com"),
     ],
 )
 def test_extract_valid_blocked_sites(hosts_line, expected_site):

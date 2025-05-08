@@ -81,7 +81,20 @@ def is_valid_site(url_or_domain: str):
 
     # Check for common invalid characters
     invalid_chars = [
-        ' ', '\t', '\n', '\r', '<', '>', '[', ']', '{', '}', '|', '\\', '^', '`'
+        " ",
+        "\t",
+        "\n",
+        "\r",
+        "<",
+        ">",
+        "[",
+        "]",
+        "{",
+        "}",
+        "|",
+        "\\",
+        "^",
+        "`",
     ]
     if any(char in url_or_domain for char in invalid_chars):
         return False
@@ -91,14 +104,14 @@ def is_valid_site(url_or_domain: str):
         parsed_url = urlparse(url_or_domain)
         if parsed_url.scheme and parsed_url.netloc:
             # Has a scheme (http/https) and a network location (domain)
-            if '.' in parsed_url.netloc:
+            if "." in parsed_url.netloc:
                 return True
     except Exception:
         # Parsing as URL failed, try basic domain checks
         return False
-    
+
     # Basic IPv4 address check
-    parts = url_or_domain.split('.')
+    parts = url_or_domain.split(".")
     if len(parts) == 4:
         is_ipv4 = True
         for part in parts:
@@ -108,8 +121,8 @@ def is_valid_site(url_or_domain: str):
         if is_ipv4:
             return True
 
-    if '.' in url_or_domain:
-        parts = url_or_domain.split('.')
+    if "." in url_or_domain:
+        parts = url_or_domain.split(".")
         if len(parts) >= 2:
             # Check TLD length (at least 2 characters)
             if len(parts[-1]) >= 2:
@@ -122,10 +135,10 @@ def is_valid_site(url_or_domain: str):
                     if len(part) > 63:
                         return False
                     # Characters are alphanumeric or '-'
-                    if not all(c.isalnum() or c == '-' for c in part):
+                    if not all(c.isalnum() or c == "-" for c in part):
                         return False
                     # Does not start or end with '-'
-                    if part.startswith('-') or part.endswith('-'):
+                    if part.startswith("-") or part.endswith("-"):
                         return False
                 return True
 
