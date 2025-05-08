@@ -33,6 +33,7 @@ def test_with_valid_sites(site, valid):
         (None, False),
         (123, False),
         ("localhost", False),
+        ("192.168.1", False),
         ("192.168.l.1", False),
         ("256.168.1.1", False),
     ],
