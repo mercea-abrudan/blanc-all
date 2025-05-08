@@ -55,10 +55,8 @@ def extract_blocked_site(hosts_line: str):
     if not hosts_line.startswith("#"):
         parts = hosts_line.split()
         if len(parts) >= 2:
-            blocked_site = parts[1]
-            # Further check if it looks like a website (contains at least one '.')
-            if "." in blocked_site:
-                return blocked_site
+            if "#" not in parts[0] and "#" not in parts[1]:
+                return parts[1]
     return None
 
 
