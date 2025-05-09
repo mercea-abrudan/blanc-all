@@ -5,6 +5,7 @@ from block import BlockingManager
 from commands import BlockSiteCommand
 from commands import ListBlockedSitesCommand
 from commands import UnblockSiteCommand
+from commands import UnblockAllSitesCommand
 from utils import copy_file, get_hosts_path
 
 
@@ -20,7 +21,7 @@ if __name__ == "__main__":
     parser.add_argument(
         "target",
         nargs="?",
-        help="The website to block/unblock (e.g., facebook.com) or '--all'.",
+        help="The website to block/unblock (e.g., example.com) or '--all'.",
     )
     parser.add_argument(
         "-m", "--minutes", type=int, help="Duration in minutes for temporary blocking."
@@ -45,25 +46,19 @@ if __name__ == "__main__":
 
     if args.action == "block":
         if args.target:
-            #         if args.target == '--all':
-            #             if args.sites:
-            #                 command = BlockAllCommand(args.sites, blocking_manager, args.minutes)
-            #             else:
-            #                 print("Please specify sites to block with '-all' using the '-s' option.")
-            #         else:
-            command = BlockSiteCommand(blocking_manager, args.target)
+            if args.target == '--all':
+                print(f"Blocking access to all sites is not supported yet.")
+            else:
+                command = BlockSiteCommand(blocking_manager, args.target)
         else:
             print("Please specify a website to block.")
 
     elif args.action == "unblock":
         if args.target:
-            #         if args.target == '-all':
-            #             if args.sites:
-            #                 command = UnblockAllCommand(args.sites, blocking_manager)
-            #             else:
-            #                 print("Please specify sites to unblock with '-all' using the '-s' option.")
-            #         else:
-            command = UnblockSiteCommand(blocking_manager, args.target)
+                if args.target == '--all':
+                    command = UnblockAllSitesCommand(args.sites, blocking_manager)
+                else:
+                    command = UnblockSiteCommand(blocking_manager, args.target)
         else:
             print("Please specify a website to unblock.")
 
