@@ -1,4 +1,6 @@
+import os
 from abc import ABC, abstractmethod
+from utils import copy_file
 from utils import is_valid_site
 
 
@@ -43,20 +45,17 @@ class UnblockAllSitesCommand(Command):
         print(f"Access to all sites has been unblocked.")
 
 
-# class RestoreHostsCommand(Command):
-#     def __init__(self, hosts_path, original_content):
-#         self.hosts_path = hosts_path
-#         self.original_content = original_content
+class RestoreHostsCommand(Command):
+    def __init__(self, blocking_manager):
+        self.blocking_manager = blocking_manager
 
-#     def execute(self):
-#         try:
-#             with open(self.hosts_path, 'w') as file:
-#                 file.write(self.original_content)
-#             print("Hosts file has been restored to its original state.")
-#             # Optionally clear the blocking state as well
-#             BlockingManager(self.hosts_path)._save_state()
-#         except IOError as e:
-#             print(f"Error accessing the hosts file: {e}")
+    def execute(self):
+        if os.path.exists(r"../data/original_hosts"):
+            try:
+                copy_file(r"../data/original_hosts", self.blocking_manager.hosts_path)
+                print("Hosts file has been restored to its original state.")
+            except Exception as e:
+                print(f"An error occured during restore: {e}")
 
 
 class ListBlockedSitesCommand(Command):
