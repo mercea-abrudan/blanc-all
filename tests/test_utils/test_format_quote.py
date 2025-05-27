@@ -140,7 +140,6 @@ def test_quote_only_whitespace_with_author():
 def test_unicode_characters():
     """Test quote with unicode characters."""
     quote = "Café naïve résumé piñata\n- Unicode Author 中文"
-    expected = "Café naïve résumé piñata\n- Unicode Author 中文"
     assert (
         format_quote(quote, words_per_line=2)
         == "Café naïve\nrésumé piñata\n- Unicode Author 中文"

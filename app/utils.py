@@ -215,7 +215,7 @@ def format_quote(full_quote: str, words_per_line: int = 10) -> str:
 
     lines = []
     for i in range(0, len(words), words_per_line):
-        line_words = words[i : i + words_per_line]
+        line_words = words[i: i + words_per_line]
         lines.append(" ".join(line_words))
 
     # Join all lines and add author

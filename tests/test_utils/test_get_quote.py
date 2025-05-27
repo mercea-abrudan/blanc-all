@@ -1,7 +1,5 @@
 import pytest
 import json
-import os
-import datetime
 from unittest.mock import patch, mock_open, MagicMock
 from pathlib import Path
 
