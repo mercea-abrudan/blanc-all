@@ -42,7 +42,7 @@ class UnblockAllSitesCommand(Command):
         if blocked_sites:
             for site in blocked_sites:
                 self.blocking_manager.unblock(site)
-        print(f"Access to all sites has been unblocked.")
+        print("Access to all sites has been unblocked.")
 
 
 class RestoreHostsCommand(Command):
