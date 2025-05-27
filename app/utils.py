@@ -160,7 +160,7 @@ def get_quote(filepath: str | os.PathLike = QUOTES_RELATIVE_PATH):
         A formatted quote string, or an empty string if an error occurs.
     """
     try:
-        with open(filepath, 'r', encoding='utf-8') as file:
+        with open(filepath, "r", encoding="utf-8") as file:
             quotes = json.load(file)
     except FileNotFoundError:
         print(f"Error: {filepath} not found.")
@@ -171,54 +171,56 @@ def get_quote(filepath: str | os.PathLike = QUOTES_RELATIVE_PATH):
     if not quotes:  # Handle empty list of quotes
         print(f"Error: No quotes found in {filepath}.")
         return ""
-    
+
     today = datetime.date.today()
     day_number = today.toordinal()
     quote_index = day_number % len(quotes)
     selected_quote = quotes[quote_index]
-    quote = f"\"{selected_quote['quote']}\"\n- {selected_quote.get('author', 'Unknown')}"
+    quote = (
+        f"\"{selected_quote['quote']}\"\n- {selected_quote.get('author', 'Unknown')}"
+    )
     return quote
 
 
 def format_quote(full_quote: str, words_per_line: int = 10) -> str:
     """
     Format a quote by wrapping words to specified number per line.
-    
+
     Args:
         full_quote: Quote string in format 'quote text\n- author'
         words_per_line: Maximum words per line (default: 10)
-    
+
     Returns:
         Formatted quote with word wrapping
-        
+
     Raises:
         ValueError: If input format is invalid or words_per_line < 1
     """
     if not isinstance(full_quote, str):
         raise ValueError("full_quote must be a string")
-    
+
     if words_per_line < 1:
         raise ValueError("words_per_line must be at least 1")
-    
-    if '\n' not in full_quote:
+
+    if "\n" not in full_quote:
         raise ValueError("Invalid quote format: missing newline separator")
-    
-    quote_text, author = full_quote.split('\n', 1)
-    if '\n' in author:
+
+    quote_text, author = full_quote.split("\n", 1)
+    if "\n" in author:
         raise ValueError("Invalid quote format: expected 'quote\\nauthor' format")
-    
+
     words = [word for word in quote_text.split() if word]
     if not words:
         raise ValueError("Quote cannot be empty")
-    
+
     lines = []
     for i in range(0, len(words), words_per_line):
-        line_words = words[i:i + words_per_line]
-        lines.append(' '.join(line_words))
-    
+        line_words = words[i : i + words_per_line]
+        lines.append(" ".join(line_words))
+
     # Join all lines and add author
-    formatted_quote = '\n'.join(lines)
+    formatted_quote = "\n".join(lines)
     if author.strip():  # Only add author if it's not empty
-        formatted_quote += '\n' + author
-    
+        formatted_quote += "\n" + author
+
     return formatted_quote

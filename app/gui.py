@@ -34,11 +34,17 @@ class BlockingApp(wx.Frame):
         # --- Icon ---
         icon = wx.Icon(ICON_PATH, wx.BITMAP_TYPE_ICO)
         self.SetIcon(icon)
-        
+
         # --- Font ---
-        self.button_font = wx.Font(10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD)
-        self.text_font = wx.Font(14, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL)
-        self.quote_font = wx.Font(12, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL)
+        self.button_font = wx.Font(
+            10, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_BOLD
+        )
+        self.text_font = wx.Font(
+            14, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL
+        )
+        self.quote_font = wx.Font(
+            12, wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, wx.FONTWEIGHT_NORMAL
+        )
 
         # --- Quote ---
         quote = format_quote(full_quote=get_quote(), words_per_line=7)
@@ -80,19 +86,23 @@ class BlockingApp(wx.Frame):
         self.blocked_list.SetMaxClientSize
 
         # --- Unblock Button ---
-        self.unblock_button = GB.GradientButton(self.panel, label="Unblock", size=(70, 30))
+        self.unblock_button = GB.GradientButton(
+            self.panel, label="Unblock", size=(70, 30)
+        )
         self._colour_gradient_button(self.unblock_button)
         self.unblock_button.SetFont(self.button_font)
         self.unblock_button.Bind(wx.EVT_BUTTON, self.on_unblock_button)
 
         # --- Unblock all Button ---
-        self.unblock_all_button = GB.GradientButton(self.panel, label="Unblock all", size=(85, 30))
+        self.unblock_all_button = GB.GradientButton(
+            self.panel, label="Unblock all", size=(85, 30)
+        )
         self._colour_gradient_button(self.unblock_all_button)
         self.unblock_all_button.SetFont(self.button_font)
         self.unblock_all_button.Bind(wx.EVT_BUTTON, self.on_unblock_all_button)
 
         self._do_layout()
-    
+
     def _colour_gradient_button(self, button):
         button.SetTopStartColour(MOUNTAIN_SKY)
         button.SetTopEndColour(MOUNTAIN_SKY)
@@ -182,6 +192,7 @@ class BlockingApp(wx.Frame):
             wx.MessageBox(
                 "The block list is empty.", "Info", wx.OK | wx.ICON_INFORMATION
             )
+
 
 def run_gui():
     app = wx.App()
