@@ -25,7 +25,7 @@ class BlockingManager:
         comment = "# blocked by blanc-all"
         try:
             with open(self.hosts_path, "a") as file:
-                file.write(f"{self.redirect} {site}  {comment}")
+                file.write(f"\n{self.redirect} {site}  {comment}")
         except FileNotFoundError:
             print("Hosts file is missing.")
         except IOError as e:

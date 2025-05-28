@@ -1,6 +1,12 @@
+import os
 import wx
 import wx.lib.agw.gradientbutton as GB
-from utils import format_quote, get_quote
+from block import BlockingManager
+from utils import copy_file
+from utils import format_quote
+from utils import get_hosts_path
+from utils import get_quote
+from utils import is_valid_site
 
 LOGO_PATH = "logo.png"
 ICON_PATH = "icon.ico"
@@ -13,6 +19,11 @@ MOUNTAIN_SNOW = wx.Colour(245, 235, 223)
 class BlockingApp(wx.Frame):
     def __init__(self, parent, title):
         super().__init__(parent, title=title)
+
+        # --- Initialization ---
+        self.hosts = get_hosts_path()
+        self._copy_original_hosts(self.hosts)
+        self.blocking_manager = BlockingManager(self.hosts)
 
         self.panel = wx.Panel(self)
 
@@ -71,14 +82,7 @@ class BlockingApp(wx.Frame):
         self.blocked_list = wx.ListBox(
             self.panel,
             wx.ID_ANY,
-            choices=[
-                "example1.com",
-                "another.org",
-                "test-site.net",
-                "domain.io",
-                "website.gov",
-                "sample.biz",
-            ],
+            choices=self.blocking_manager.get_blocked_sites(),
             style=wx.LB_MULTIPLE,
         )
         self.blocked_list.SetForegroundColour(MOUNTAIN_SKY)
@@ -102,6 +106,13 @@ class BlockingApp(wx.Frame):
         self.unblock_all_button.Bind(wx.EVT_BUTTON, self.on_unblock_all_button)
 
         self._do_layout()
+
+    def _copy_original_hosts(self, hosts_file):
+        if not os.path.exists(r"../data/original_hosts"):
+            try:
+                copy_file(hosts_file, r"../data/original_hosts")
+            except Exception as e:
+                print(f"An error occured during copy: {e}")
 
     def _colour_gradient_button(self, button):
         button.SetTopStartColour(MOUNTAIN_SKY)
@@ -145,39 +156,48 @@ class BlockingApp(wx.Frame):
 
     def on_block_button(self, event):
         site_to_block = self.block_input.GetValue().strip()
-        if site_to_block and site_to_block not in [
-            self.blocked_list.GetString(i) for i in range(self.blocked_list.GetCount())
-        ]:
-            self.blocked_list.Append(site_to_block)
-            self.block_input.SetValue("")
-        elif not site_to_block:
+        if not site_to_block:
             wx.MessageBox(
-                "Please enter a website to block.", "Info", wx.OK | wx.ICON_INFORMATION
+                "Please enter a website to block.",
+                "Info",
+                wx.OK | wx.ICON_INFORMATION,
             )
-        else:
+        elif site_to_block in self.blocking_manager.get_blocked_sites():
             wx.MessageBox(
                 f"{site_to_block} is already in the block list.",
                 "Info",
                 wx.OK | wx.ICON_INFORMATION,
             )
+        elif not is_valid_site(site_to_block):
+            wx.MessageBox(
+                f"{site_to_block} is not a valid site.",
+                "Info",
+                wx.OK | wx.ICON_INFORMATION,
+            )
+        else:
+            self.blocking_manager.block(site_to_block)
+            self.blocked_list.Set(self.blocking_manager.get_blocked_sites())
+            self.block_input.SetValue("")
 
     def on_unblock_button(self, event):
         selected_indices = self.blocked_list.GetSelections()
-        if selected_indices:
-            items_to_remove = [
-                self.blocked_list.GetString(i) for i in reversed(selected_indices)
-            ]  # Remove in reverse to avoid index issues
-            for item in items_to_remove:
-                self.blocked_list.Delete(self.blocked_list.FindString(item))
-        else:
+        if not selected_indices:
             wx.MessageBox(
                 "Please select one or more websites to unblock.",
                 "Info",
                 wx.OK | wx.ICON_INFORMATION,
             )
+        else:
+            sites_to_unblock = [
+                self.blocked_list.GetString(i) for i in reversed(selected_indices)
+            ]
+            for site in sites_to_unblock:
+                self.blocking_manager.unblock(site)
+            self.blocked_list.Set(self.blocking_manager.get_blocked_sites())
 
     def on_unblock_all_button(self, event):
-        if self.blocked_list.GetCount() > 0:
+        sites_to_unblock = self.blocked_list.GetItems()
+        if sites_to_unblock > 0:
             dlg = wx.MessageDialog(
                 self,
                 "Are you sure you want to unblock all websites?",
@@ -186,11 +206,15 @@ class BlockingApp(wx.Frame):
             )
             result = dlg.ShowModal()
             if result == wx.ID_YES:
-                self.blocked_list.Clear()
+                for site in sites_to_unblock:
+                    self.blocking_manager.unblock(site)
+                    self.blocked_list.Set(self.blocking_manager.get_blocked_sites())
             dlg.Destroy()
         else:
             wx.MessageBox(
-                "The block list is empty.", "Info", wx.OK | wx.ICON_INFORMATION
+                "The block list is empty.",
+                "Info",
+                wx.OK | wx.ICON_INFORMATION,
             )
 
 
