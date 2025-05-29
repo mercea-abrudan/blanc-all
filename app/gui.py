@@ -197,7 +197,7 @@ class BlockingApp(wx.Frame):
 
     def on_unblock_all_button(self, event):
         sites_to_unblock = self.blocked_list.GetItems()
-        if sites_to_unblock > 0:
+        if len(sites_to_unblock) > 0:
             dlg = wx.MessageDialog(
                 self,
                 "Are you sure you want to unblock all websites?",
