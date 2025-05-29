@@ -11,6 +11,7 @@ from app.utils import is_valid_site
         ("http://example.com", True),
         ("https://www.example.net/path?query=value", True),
         ("example-hyphen.com", True),
+        ("www.youtube.com/JenkinsClips69", True),
         ("ex.ample", True),
         ("192.168.1.1", True),
     ],

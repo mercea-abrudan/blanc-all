@@ -126,7 +126,8 @@ def is_valid_site(url_or_domain: str):
             return True
 
     if "." in url_or_domain:
-        parts = url_or_domain.split(".")
+        site = url_or_domain.split("/")[0]
+        parts = site.split(".")
         if len(parts) >= 2:
             # Check TLD length (at least 2 characters)
             if len(parts[-1]) >= 2:
